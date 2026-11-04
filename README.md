@@ -36,3 +36,108 @@ Beskrivning av vad jag gjorde.
 En push till branchen startade inte CI-jobbet. Workflowen var konfigurerad att reagera på en Pull Request mot main. När PR:n skapades triggades workflowen, men GitHub krävde godkännande eftersom ändringen kom från en fork.
 
 ![DAY 2](/screenshots/03_day2_test.png)
+
+## Dag 2
+
+### Syfte
+
+Att förstå hur en CI-pipeline fungerar och hur GitHub Actions automatiserar tester och kvalitetskontroller.
+
+---
+
+### Hur CI startas
+
+Workflowen kan triggas av:
+
+```yaml
+on:
+  push:
+  pull_request:
+```
+
+I vår övning startades CI när en Pull Request skapades mot `main`.
+
+---
+
+### Läsning av loggar
+
+Vid ett fel:
+
+```text
+Actions
+↓
+Välj körning
+↓
+Öppna det röda steget
+```
+
+Läs alltid den faktiska felloggen, inte bara att pipeline-status är röd.
+
+---
+
+## Ruff och Pytest
+
+### Ruff
+
+- Statisk kodanalys
+- Läser koden utan att köra den
+- Hittar stilfel och vissa programmeringsfel
+
+### Pytest
+
+- Kör testfall
+- Verifierar att programmet fungerar korrekt
+- Hittar logiska fel
+
+| Ruff | Pytest |
+| -------- | -------- |
+| Läser kod | Kör kod |
+| Kodkvalitet | Funktionalitet |
+| Statisk analys | Testkörning |
+
+---
+
+## GitHub-hosted vs Self-hosted Runner
+
+### GitHub-hosted
+
+- GitHub ansvarar för miljön
+- Ingen installation krävs
+- Passar de flesta projekt
+
+### Self-hosted
+
+- Organisationen ansvarar för servern
+- Kräver underhåll och säkerhetshantering
+- Kan användas för interna system eller särskild hårdvara
+
+---
+
+## När används Self-hosted Runners?
+
+Exempel:
+
+- Interna API:er
+- Företagsnätverk
+- Databaser bakom brandvägg
+- GPU eller specialutrustning
+- Särskilda säkerhetskrav
+
+---
+
+## Kunskapsmål efter dag 2
+
+Jag ska kunna:
+
+- Beskriva kedjan **Händelse → Workflow → Jobb → Runner → Steg → Resultat**
+- Hitta och tolka en fellogg i GitHub Actions
+- Förklara skillnaden mellan Ruff och Pytest
+- Förstå hur en Pull Request triggar CI
+- Resonera kring när GitHub-hosted respektive Self-hosted runners används
+- Förklara varför snabb återkoppling är viktig i Continuous Integration
+
+---
+
+## Kort sammanfattning
+
+CI automatiserar tester och kvalitetskontroller varje gång kod integreras i projektet. GitHub Actions använder workflows som körs på runners och består av olika jobb och steg. Genom verktyg som Ruff och Pytest kan fel upptäckas tidigt, vilket ger snabb återkoppling, högre kvalitet och säkrare leveranser.
