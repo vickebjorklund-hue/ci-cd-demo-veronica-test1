@@ -3,12 +3,15 @@
 I denna filen dokumentearr jag alla övningar som görs under kursen. Detta för att jag ska kunna gå tillbaka och repetera allt vi gör.
 Repot ligger i `Github` och jag pushar efter varje lektion/övning är slutförd.
 
-Repot i sig `https://github.com/vickebjorklund-hue/ci-cd-demo-veronica-test1` är mitt test repo som jag sparar för övningarnas skull.
+Repot i sig `https://github.com/vickebjorklund-hue/ci-cd-demo-veronica-test1` är mitt test repo som jag arbetar i och sparar för övningarnas skull.
 
 Vi har övningsuppgifter under lektionerna som benämns `Övning under lektion` och vi har uppgifter som ska lämnas in som benämns `Inlämningsuppgift - dag x`.
 Jag kommer även spara våra fördjupningsövningar och självstudier i sparata Markdown som heter `STUDIER_X.md` i detta repo.
 
-Alla inlämningsuppgifter pushas till `https://github.com/cloudfactoreu/devops25-ci-cd-demo` som är vårt huvudrepo, och mitt lokala repo `https://github.com/vickebjorklund-hue/veronica-ci-cd-demo1` som är en fork på huvudrepot.
+Alla inlämningsuppgifter pushas till `https://github.com/vickebjorklund-hue/xxxxxxxxxxxx` som är min kopia av huvudrepot: `https://github.com/cloudfactoreu/devops25-ci-cd-course`
+och mitt lokala repo `https://github.com/vickebjorklund-hue/veronica-ci-cd-demo1` som är en fork på huvudrepot.
+
+---
 
 ## Inlämningsuppgift - dag 1
 
@@ -35,7 +38,7 @@ Jag skapade ett eget repository (som kommer bli mitt test repo under hela kursen
 Beskrivning av vad jag gjorde.
 En push till branchen startade inte CI-jobbet. Workflowen var konfigurerad att reagera på en Pull Request mot main. När PR:n skapades triggades workflowen, men GitHub krävde godkännande eftersom ändringen kom från en fork.
 
-![DAY 2](/screenshots/03_day2_test.png)
+![DAY 2](/screenshots/03_ci_test.png)
 
 ## Dag 2
 
@@ -136,8 +139,256 @@ Jag ska kunna:
 - Resonera kring när GitHub-hosted respektive Self-hosted runners används
 - Förklara varför snabb återkoppling är viktig i Continuous Integration
 
----
-
 ## Kort sammanfattning
 
 CI automatiserar tester och kvalitetskontroller varje gång kod integreras i projektet. GitHub Actions använder workflows som körs på runners och består av olika jobb och steg. Genom verktyg som Ruff och Pytest kan fel upptäckas tidigt, vilket ger snabb återkoppling, högre kvalitet och säkrare leveranser.
+
+---
+
+## Dag 3 – Automatiserade tester, kodkvalitet och Quality Gates
+
+### Syfte - dag 3
+
+Målet med övningen var att förstå hur tester och kodkontroller används för att upptäcka fel innan kod når huvudbranchen samt hur CI-pipelines fungerar tillsammans med Pull Requests.
+
+---
+
+### Vad som gjordes
+
+#### 1. Köra tester lokalt
+
+Projektet verifierades med:
+
+```bash
+python -m pytest -v
+```
+
+samt kodgranskning med:
+
+```bash
+ruff check app tests
+```
+
+Pytest kontrollerade att funktionerna fungerade korrekt medan Ruff kontrollerade kodkvaliteten.
+
+---
+
+#### 2. Skapa ett avsiktligt fel
+
+I testfilen `tests/test_service.py` ändrades:
+
+```python
+assert add(2, 3) == 5
+```
+
+till:
+
+```python
+assert add(2, 3) == 6
+```
+
+Syftet var att skapa ett kontrollerat testfel.
+
+Resultatet blev:
+
+```text
+1 failed, 4 passed
+```
+
+---
+
+#### 3. Skapa en röd pipeline
+
+Ändringen committades och pushades till en separat demonstrationsbranch.
+
+När GitHub Actions körde CI-pipelinen misslyckades teststeget eftersom testet förväntade sig värdet `6` medan funktionen faktiskt returnerade `5`.
+
+I loggen kunde felet identifieras genom raden:
+
+```text
+assert 5 == 6
+```
+
+---
+
+### Vad felet visade
+
+Den röda CI-körningen visade att:
+
+- testerna fungerar som en kvalitetssäkring
+- fel upptäcks automatiskt
+- kod med felaktiga testresultat stoppas innan merge
+
+En röd pipeline betyder att något måste undersökas, men inte automatiskt att applikationen är trasig.
+
+---
+
+### Hur felet rättades
+
+Testet ändrades tillbaka till:
+
+```python
+assert add(2, 3) == 5
+```
+
+Därefter verifierades:
+
+```bash
+python -m pytest -q
+ruff check app tests
+```
+
+När alla tester passerade committades och pushades rättningen.
+
+GitHub Actions körde då en ny pipeline som blev grön.
+
+---
+
+### Quality Gates
+
+Övningen demonstrerade hur automatiska kontroller fungerar som en **Quality Gate**.
+
+Exempel på Quality Gates:
+
+- Godkända tester (Pytest)
+- Godkänd kodkvalitet (Ruff)
+- Pull Request
+- Kodgranskning (Code Review)
+
+Dessa kontroller hjälper till att förhindra att felaktig kod hamnar i `main`.
+
+---
+
+### Viktiga lärdomar
+
+- Pytest testar funktionalitet.
+- Ruff analyserar kodkvalitet.
+- Tester bör köras både lokalt och i CI.
+- En röd pipeline ska analyseras genom att läsa loggarna.
+- Pull Requests kan kopplas till automatiska kontroller.
+- Quality Gates hjälper team att hålla hög kvalitet innan merge.
+
+---
+
+# Dag 3 – Automatiserade tester, kodkvalitet och Quality Gates
+
+## Syfte
+
+Målet med övningen var att förstå hur tester och kodkontroller används för att upptäcka fel innan kod når huvudbranchen samt hur CI-pipelines fungerar tillsammans med Pull Requests.
+
+---
+
+## Vad som gjordes
+
+### 1. Köra tester lokalt
+
+Projektet verifierades med:
+
+```bash
+python -m pytest -v
+```
+
+samt kodgranskning med:
+
+```bash
+ruff check app tests
+```
+
+Pytest kontrollerade att funktionerna fungerade korrekt medan Ruff kontrollerade kodkvaliteten.
+
+---
+
+### 2. Skapa ett avsiktligt fel
+
+I testfilen `tests/test_service.py` ändrades:
+
+```python
+assert add(2, 3) == 5
+```
+
+till:
+
+```python
+assert add(2, 3) == 6
+```
+
+Syftet var att skapa ett kontrollerat testfel.
+
+Resultatet blev:
+
+```text
+1 failed, 4 passed
+```
+
+---
+
+### 3. Skapa en röd pipeline
+
+Ändringen committades och pushades till en separat demonstrationsbranch.
+
+När GitHub Actions körde CI-pipelinen misslyckades teststeget eftersom testet förväntade sig värdet `6` medan funktionen faktiskt returnerade `5`.
+
+I loggen kunde felet identifieras genom raden:
+
+```text
+assert 5 == 6
+```
+
+---
+
+## Vad felet visade
+
+Den röda CI-körningen visade att:
+
+- testerna fungerar som en kvalitetssäkring
+- fel upptäcks automatiskt
+- kod med felaktiga testresultat stoppas innan merge
+
+En röd pipeline betyder att något måste undersökas, men inte automatiskt att applikationen är trasig.
+
+---
+
+## Hur felet rättades
+
+Testet ändrades tillbaka till:
+
+```python
+assert add(2, 3) == 5
+```
+
+Därefter verifierades:
+
+```bash
+python -m pytest -q
+ruff check app tests
+```
+
+När alla tester passerade committades och pushades rättningen.
+
+GitHub Actions körde då en ny pipeline som blev grön.
+
+---
+
+## Quality Gates
+
+Övningen demonstrerade hur automatiska kontroller fungerar som en **Quality Gate**.
+
+Exempel på Quality Gates:
+
+- Godkända tester (Pytest)
+- Godkänd kodkvalitet (Ruff)
+- Pull Request
+- Kodgranskning (Code Review)
+
+Dessa kontroller hjälper till att förhindra att felaktig kod hamnar i `main`.
+
+---
+
+## Viktiga lärdomar - dag 3
+
+- Pytest testar funktionalitet.
+- Ruff analyserar kodkvalitet.
+- Tester bör köras både lokalt och i CI.
+- En röd pipeline ska analyseras genom att läsa loggarna.
+- Pull Requests kan kopplas till automatiska kontroller.
+- Quality Gates hjälper team att hålla hög kvalitet innan merge.
